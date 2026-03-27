@@ -1,220 +1,410 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cyberpunk Glass UI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Ladders | Engineering & Digital Nexus</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Cyber-Deep Palette */
+            --bg-dark: #020617;
+            --bg-card: rgba(15, 23, 42, 0.6);
+            --accent-cyan: #22d3ee;
+            --accent-purple: #818cf8;
+            --accent-pink: #f472b6;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-glow: 0 0 20px rgba(34, 211, 238, 0.3);
+            
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
 
-    body {
-      background: radial-gradient(circle at top, #0f2027, #0a0a0a);
-      color: white;
-      overflow-x: hidden;
-    }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-    /* NAVBAR */
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 15px 40px;
-      display: flex;
-      justify-content: space-between;
-      backdrop-filter: blur(10px);
-      background: rgba(255,255,255,0.05);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      z-index: 1000;
-    }
+        /* --- BACKGROUND ENGINE --- */
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+        }
 
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-left: 20px;
-      transition: 0.3s;
-    }
+        .glow-sphere {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+            pointer-events: none;
+        }
 
-    nav a:hover {
-      color: #00f7ff;
-    }
+        /* --- UTILITY CLASSES --- */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        .glass {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+        }
+        .reveal { opacity: 0; transform: translateY(30px); transition: var(--transition); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .text-gradient {
+            background: linear-gradient(135deg, #fff 30%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    /* HERO */
-    .hero {
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
-    }
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+        nav.scrolled {
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff; text-decoration: none; letter-spacing: -1px; }
+        .logo span { color: var(--accent-cyan); }
+        .nav-links a { text-decoration: none; color: var(--text-dim); margin-left: 2rem; font-size: 0.9rem; font-weight: 600; transition: var(--transition); }
+        .nav-links a:hover { color: var(--accent-cyan); }
 
-    .hero h1 {
-      font-size: 3rem;
-      background: linear-gradient(90deg, #00f7ff, #ff00ff);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+        .hero-content h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 10vw, 6rem);
+            line-height: 1;
+            margin-bottom: 1.5rem;
+        }
+        .hero-content p {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+        }
+        .cta-group { display: flex; gap: 1rem; justify-content: center; }
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: var(--neon-glow);
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(34, 211, 238, 0.5); }
+        .btn-secondary { border: 1px solid var(--glass-border); color: #fff; background: rgba(255,255,255,0.03); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
 
-    .hero p {
-      margin-top: 15px;
-      opacity: 0.8;
-    }
+        /* --- BENTO SERVICES GRID --- */
+        .section-title { text-align: center; margin-bottom: 4rem; }
+        .section-title h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .service-card {
+            padding: 3rem;
+            position: relative;
+            transition: var(--transition);
+            cursor: default;
+        }
+        .service-card:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-10px);
+        }
+        .service-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .service-card h3 { margin-bottom: 1rem; font-size: 1.5rem; }
 
-    .btn {
-      margin-top: 20px;
-      padding: 12px 25px;
-      border-radius: 30px;
-      border: none;
-      background: linear-gradient(90deg, #00f7ff, #ff00ff);
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+        /* --- PORTFOLIO (THE IMPACT) --- */
+        .work-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+        .work-item {
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+        }
+        .work-img {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .work-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(2, 6, 23, 0.9), transparent);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2.5rem;
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .work-item:hover .work-overlay { opacity: 1; }
+        .work-item:hover .work-img { transform: scale(1.1); }
 
-    .btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px #00f7ff;
-    }
+        /* --- CONTACT SECTION --- */
+        .contact-box {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.05) 0%, rgba(129, 140, 248, 0.05) 100%);
+        }
 
-    /* GLASS CARD */
-    .glass {
-      background: rgba(255,255,255,0.05);
-      border-radius: 20px;
-      backdrop-filter: blur(15px);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 30px;
-      transition: 0.3s;
-    }
+        footer {
+            padding: 4rem 0;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
 
-    .glass:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 0 25px rgba(0,255,255,0.3);
-    }
-
-    /* SECTIONS */
-    section {
-      padding: 100px 10%;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 40px;
-      color: #00f7ff;
-    }
-
-    /* ANIMATION */
-    .fade {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: 0.8s ease;
-    }
-
-    .fade.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* FOOTER */
-    footer {
-      text-align: center;
-      padding: 30px;
-      opacity: 0.6;
-    }
-
-  </style>
+        /* Responsive Fixes */
+        @media (max-width: 768px) {
+            .work-grid { grid-template-columns: 1fr; }
+            .hero-content h1 { font-size: 3.5rem; }
+            .nav-links { display: none; }
+        }
+    </style>
 </head>
-
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <h3>⚡ Brand</h3>
-    <div>
-      <a href="#about">About</a>
-      <a href="#features">Features</a>
-      <a href="#portfolio">Portfolio</a>
-      <a href="#contact">Contact</a>
-    </div>
-  </nav>
+    <canvas id="canvas-bg"></canvas>
+    <div class="glow-sphere" id="cursor-glow"></div>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div>
-      <h1>Future Starts Here</h1>
-      <p>Cyberpunk-inspired modern web experience</p>
-      <button class="btn">Explore</button>
-    </div>
-  </section>
+    <nav id="navbar">
+        <div class="container nav-content">
+            <a href="#" class="logo">DREAM<span>LADDERS</span></a>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#services">Capabilities</a>
+                <a href="#work">Impact</a>
+                <a href="#contact">Connect</a>
+            </div>
+        </div>
+    </nav>
 
-  <!-- ABOUT -->
-  <section id="about">
-    <h2>About</h2>
-    <div class="glass fade">
-      <p>This design combines glassmorphism, smooth animations, and futuristic UI.</p>
-    </div>
-  </section>
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="reveal">
+                <h1 class="text-gradient">Design Meets<br>Destiny</h1>
+                <p>Architecting high-performance cloud ecosystems and sustainable physical infrastructure. Where code builds reality.</p>
+                <div class="cta-group">
+                    <a href="#work" class="btn btn-primary">Explore Work</a>
+                    <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- FEATURES -->
-  <section id="features">
-    <h2>Features</h2>
-    <div class="grid">
-      <div class="glass fade">⚡ Fast Performance</div>
-      <div class="glass fade">🎨 Modern UI</div>
-      <div class="glass fade">📱 Fully Responsive</div>
-    </div>
-  </section>
+    <section id="about" style="padding: 100px 0;">
+        <div class="container">
+            <div class="glass reveal" style="padding: 4rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+                <div>
+                    <span style="color:var(--accent-cyan); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">01. Identity</span>
+                    <h2 style="font-size: 2.5rem; margin: 1rem 0;">A Dual-Core Brand</h2>
+                    <p style="color:var(--text-dim);">Founded by Rajesh Shambudu, Dream Ladders is a multinational hub bridging the gap between structural civil engineering and enterprise-scale Azure DevOps. We don't just design structures; we automate the future.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); height: 300px; border-radius: 15px; border: 1px dashed var(--glass-border); display: flex; align-items: center; justify-content: center; font-style: italic; color: var(--text-dim);">
+                    [ Structural Rigor × Digital Agility ]
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- PORTFOLIO -->
-  <section id="portfolio">
-    <h2>Portfolio</h2>
-    <div class="grid">
-      <div class="glass fade">Project 1</div>
-      <div class="glass fade">Project 2</div>
-      <div class="glass fade">Project 3</div>
-    </div>
-  </section>
+    <section id="services" style="padding: 100px 0;">
+        <div class="container">
+            <div class="section-title reveal">
+                <h2>Our Ecosystem</h2>
+                <p style="color: var(--text-dim);">A holistic approach to engineering in the 2026 digital landscape.</p>
+            </div>
+            <div class="services-grid">
+                <div class="glass service-card reveal">
+                    <i class="fa-solid fa-cloud-bolt"></i>
+                    <h3>Azure DevOps</h3>
+                    <p>Enterprise CI/CD orchestration and cloud infrastructure as code. Scaled for global stability.</p>
+                </div>
+                <div class="glass service-card reveal" style="transition-delay: 0.1s;">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <h3>Civil Engineering</h3>
+                    <p>Sustainable structural designs and Vastu-compliant layouts for the modern age.</p>
+                </div>
+                <div class="glass service-card reveal" style="transition-delay: 0.2s;">
+                    <i class="fa-solid fa-code"></i>
+                    <h3>Digital Tools</h3>
+                    <p>Custom web applications and automation engines tailored for niche technical workflows.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- CONTACT -->
-  <section id="contact">
-    <h2>Contact</h2>
-    <div class="glass fade">
-      <p>Email: your@email.com</p>
-    </div>
-  </section>
+    <section id="work" style="padding: 100px 0;">
+        <div class="container">
+            <div class="section-title reveal">
+                <h2>Featured Impact</h2>
+            </div>
+            <div class="work-grid">
+                <div class="work-item glass reveal">
+                    <div class="work-img" style="background-color: #1e293b; background-image: linear-gradient(45deg, #1e293b, #0f172a);"></div>
+                    <div class="work-overlay">
+                        <h3>FinTech Cloud Migration</h3>
+                        <p>Azure • London, UK</p>
+                    </div>
+                </div>
+                <div class="work-item glass reveal" style="transition-delay: 0.1s;">
+                    <div class="work-img" style="background-color: #1e293b; background-image: linear-gradient(45deg, #312e81, #1e1b4b);"></div>
+                    <div class="work-overlay">
+                        <h3>The Eco-Sync Complex</h3>
+                        <p>Civil Engineering • Hyderabad, IN</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- FOOTER -->
-  <footer>
-    © 2026 Cyberpunk UI. All rights reserved.
-  </footer>
+    <section id="contact" style="padding: 100px 0;">
+        <div class="container">
+            <div class="glass contact-box reveal">
+                <h2 style="font-size: 3rem; margin-bottom: 1.5rem;">Ready to build?</h2>
+                <p style="color: var(--text-dim); margin-bottom: 2.5rem;">Let's collaborate on your next extraordinary project.</p>
+                <a href="mailto:shambudurajesh05@gmail.com" class="btn btn-primary">Start a Conversation</a>
+            </div>
+        </div>
+    </section>
 
-  <!-- JS (Scroll Animation) -->
-  <script>
-    const faders = document.querySelectorAll('.fade');
+    <footer>
+        <div class="container">
+            <p>© 2026 Dream Ladders Global. All rights reserved.</p>
+            <p style="font-size: 0.7rem; margin-top: 10px; opacity: 0.5;">ENGINEERING • AUTOMATION • DESIGN</p>
+        </div>
+    </footer>
 
-    window.addEventListener('scroll', () => {
-      faders.forEach(el => {
-        const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight - 100) {
-          el.classList.add('show');
+    <script>
+        // 1. Particle Background Logic
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-      });
-    });
-  </script>
 
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(34, 211, 238, 0.2)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        initCanvas();
+        for (let i = 0; i < 100; i++) particles.push(new Particle());
+        animate();
+
+        // 2. Cursor Glow Follow
+        const glow = document.getElementById('cursor-glow');
+        window.addEventListener('mousemove', (e) => {
+            glow.style.left = e.clientX - 200 + 'px';
+            glow.style.top = e.clientY - 200 + 'px';
+        });
+
+        // 3. Reveal Animation on Scroll
+        const observerOptions = { threshold: 0.1 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // 4. Navbar Background Change
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+
+        window.addEventListener('resize', initCanvas);
+    </script>
 </body>
 </html>
